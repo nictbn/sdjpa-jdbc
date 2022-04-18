@@ -28,28 +28,12 @@ public class AuthorDaoImpl implements AuthorDao {
             resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {
-                Author author = new Author();
-                author.setId(id);
-                author.setFirstName(resultSet.getString("first_name"));
-                author.setLastName(resultSet.getString("last_name"));
-                return author;
+                return getAuthorFromResultSet(resultSet);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                if (resultSet != null) {
-                    resultSet.close();
-                }
-                if (preparedStatement != null) {
-                    preparedStatement.close();
-                }
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            closeAll(resultSet, preparedStatement, connection);
         }
         return null;
     }
@@ -66,31 +50,42 @@ public class AuthorDaoImpl implements AuthorDao {
             preparedStatement.setString(1, firstName);
             preparedStatement.setString(2, lastName);
             resultSet = preparedStatement.executeQuery();
-
             if (resultSet.next()) {
-                Author author = new Author();
-                author.setId(resultSet.getLong("id"));
-                author.setFirstName(resultSet.getString("first_name"));
-                author.setLastName(resultSet.getString("last_name"));
-                return author;
+                return getAuthorFromResultSet(resultSet);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                if (resultSet != null) {
-                    resultSet.close();
-                }
-                if (preparedStatement != null) {
-                    preparedStatement.close();
-                }
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            closeAll(resultSet, preparedStatement, connection);
         }
         return null;
+    }
+
+    private Author getAuthorFromResultSet(ResultSet resultSet) {
+        Author author = new Author();
+        try {
+            author.setId(resultSet.getLong("id"));
+            author.setFirstName(resultSet.getString("first_name"));
+            author.setLastName(resultSet.getString("last_name"));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return author;
+    }
+
+    private void closeAll(ResultSet resultSet, PreparedStatement preparedStatement, Connection connection) {
+        try {
+            if (resultSet != null) {
+                resultSet.close();
+            }
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }
