@@ -53,4 +53,18 @@ public class AuthorDaoIntegrationTest {
 
         assertThat(updated.getLastName()).isEqualTo("Thompson");
     }
+
+    @Test
+    void testDeleteAuthor() {
+        Author author = new Author();
+        author.setFirstName("John");
+        author.setLastName("T");
+
+        Author saved = authorDao.saveNewAuthor(author);
+
+        authorDao.deleteAuthorById(saved.getId());
+
+        Author deleted = authorDao.getById(saved.getId());
+        assertThat(deleted).isNull();
+    }
 }

@@ -113,6 +113,23 @@ public class AuthorDaoImpl implements AuthorDao {
         return this.getById(author.getId());
     }
 
+    @Override
+    public void deleteAuthorById(Long id) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+
+        try {
+            connection = source.getConnection();
+            preparedStatement = connection.prepareStatement("delete from author where id = ?");
+            preparedStatement.setLong(1, id);
+            preparedStatement.execute();
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        } finally {
+            closeAll(null, preparedStatement, connection);
+        }
+    }
+
     private Author getAuthorFromResultSet(ResultSet resultSet) {
         Author author = new Author();
         try {
