@@ -1,5 +1,6 @@
 package guru.springframework.jdbc.dao;
 
+import guru.springframework.jdbc.domain.Author;
 import guru.springframework.jdbc.domain.Book;
 import org.springframework.stereotype.Component;
 
@@ -10,9 +11,11 @@ import java.sql.*;
 public class BookDaoImpl implements BookDao {
 
     private final DataSource source;
+    private final AuthorDao authorDao;
 
-    public BookDaoImpl(DataSource source) {
+    public BookDaoImpl(DataSource source, AuthorDao authorDao) {
         this.source = source;
+        this.authorDao = authorDao;
     }
 
     @Override
@@ -71,7 +74,12 @@ public class BookDaoImpl implements BookDao {
             preparedStatement.setString(1, book.getIsbn());
             preparedStatement.setString(2, book.getPublisher());
             preparedStatement.setString(3, book.getTitle());
-            preparedStatement.setLong(4, book.getAuthorId());
+            if (book.getAuthor() != null) {
+                preparedStatement.setLong(4, book.getAuthor().getId());
+            } else {
+                // -5 means NULL for Bigint numbers
+                preparedStatement.setNull(4, -5);
+            }
             preparedStatement.execute();
 
             Statement statement = connection.createStatement();
@@ -104,7 +112,9 @@ public class BookDaoImpl implements BookDao {
             preparedStatement.setString(1, book.getIsbn());
             preparedStatement.setString(2, book.getPublisher());
             preparedStatement.setString(3, book.getTitle());
-            preparedStatement.setLong(4, book.getAuthorId());
+            if (book.getAuthor() != null) {
+                preparedStatement.setLong(4, book.getAuthor().getId());
+            }
             preparedStatement.setLong(5, book.getId());
             preparedStatement.execute();
         } catch (SQLException e) {
@@ -139,13 +149,12 @@ public class BookDaoImpl implements BookDao {
             String title = resultSet.getString("title");
             String isbn = resultSet.getString("isbn");
             String publisher = resultSet.getString("publisher");
-            Long authorId = resultSet.getLong("author_id");
             book = new Book();
             book.setId(id);
             book.setTitle(title);
             book.setIsbn(isbn);
             book.setPublisher(publisher);
-            book.setAuthorId(authorId);
+            book.setAuthor(authorDao.getById(resultSet.getLong("author_id")));
         } catch (SQLException exception) {
             exception.printStackTrace();
         }

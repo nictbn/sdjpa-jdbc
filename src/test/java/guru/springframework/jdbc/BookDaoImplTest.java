@@ -1,6 +1,7 @@
 package guru.springframework.jdbc;
 
 import guru.springframework.jdbc.dao.BookDao;
+import guru.springframework.jdbc.domain.Author;
 import guru.springframework.jdbc.domain.Book;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +11,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("local")
 @DataJpaTest
@@ -39,7 +39,9 @@ class BookDaoImplTest {
         book.setPublisher("O'Reilly");
         book.setIsbn("1234565");
         book.setTitle("Ubung macht den Meister");
-        book.setAuthorId(1L);
+        Author author = new Author();
+        author.setId(3L);
+        book.setAuthor(author);
         Book saved = bookDao.saveNewBook(book);
         assertThat(saved).isNotNull();
     }
@@ -50,7 +52,11 @@ class BookDaoImplTest {
         book.setPublisher("O'Reilly");
         book.setIsbn("1234565");
         book.setTitle("Ubung macht den Meister");
-        book.setAuthorId(1L);
+
+        Author author = new Author();
+        author.setId(3L);
+
+        book.setAuthor(author);
         Book saved = bookDao.saveNewBook(book);
         assertThat(saved).isNotNull();
         assertThat(saved.getTitle()).isEqualTo("Ubung macht den Meister");
@@ -66,7 +72,6 @@ class BookDaoImplTest {
         book.setPublisher("O'Reilly");
         book.setIsbn("1234565");
         book.setTitle("Ubung macht den Meister");
-        book.setAuthorId(1L);
         Book saved = bookDao.saveNewBook(book);
 
         bookDao.deleteBook(saved.getId());
